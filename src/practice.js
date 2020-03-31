@@ -36,7 +36,7 @@ function searchByShopping(searchTerm) {
     });
 
 }
-searchByShopping('Tofurkey');
+//searchByShopping('Tofurkey');
 
 function paginateProducts(page) {
   const productsPerPage = 10;
@@ -51,6 +51,20 @@ function paginateProducts(page) {
     });
 }
 
+function paginateShoppingList(pageNumber) {
+  const productsPerPage = 6;
+  const offset = productsPerPage * (pageNumber -1);
+  knexInstance
+    .select('name', 'price', 'category')
+    .from('shopping_list')
+    .limit(productsPerPage)
+    .offset(offset)
+    .then(result => {
+        console.log(result);
+    })
+}
+//paginateShoppingList(3)
+
 function getProductsWithImages() {
   knexInstance
     .select('product_id', 'name', 'price', 'category')
@@ -60,6 +74,22 @@ function getProductsWithImages() {
       console.log(result);
     });
 }
+
+function totalCost() {
+  knexInstance
+    .select('category')
+    .sum('price')
+    .from('shopping_list')
+    .groupBy('category')
+    // .orderBy([
+    //   { column: 'category', order: 'DESC'}
+    // ])
+    .then(result => {
+      console.log(result)
+    })
+}
+
+totalCost()
 
 function mostPopularVideosForDays(days) {
   knexInstance
@@ -80,6 +110,21 @@ function mostPopularVideosForDays(days) {
       console.log(result);
     });
 }
+
+function addedAfterDate(daysAgo) {
+  knexInstance
+    .select('name', 'category')
+    // .count('date_added AS added')
+    .where('date_added', '>', 
+      knexInstance.raw(`now() - '?? days'::INTERVAL`, daysAgo))
+    .from('shopping_list')
+    .groupBy('name', 'category')
+    .then(results => {
+      console.log(results)
+    })
+}
+
+//addedAfterDate(5)
 
 // mostPopularVideosForDays(30);
 
